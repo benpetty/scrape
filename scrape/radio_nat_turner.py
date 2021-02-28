@@ -161,8 +161,10 @@ class RadioNatTurner:
 
 
 def main():
-    print("Scraping Radio Nat Turner record pool")
-    print(URLS)
+    print(Fore.LIGHTRED_EX + "Scraping Radio Nat Turner record pool" + Style.RESET_ALL)
+
+    for url in URLS:
+        print(Fore.RED + url + Style.RESET_ALL)
 
     for url in URLS:
         RadioNatTurner().scrape(url)
