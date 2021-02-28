@@ -90,6 +90,7 @@ class RadioNatTurner:
 
     def login(self):
         self.browser.get(self.url)
+        self.browser.set_window_size(200, 200)
         print(f"signing in to {self.url}")
         password_input = self.browser.find_element_by_class_name("password-input")
         password_input.send_keys(PASSWORD)
