@@ -2,6 +2,7 @@
 
 import os
 import random
+import json
 
 from urllib.parse import urlparse
 from urllib.request import url2pathname
@@ -21,8 +22,8 @@ from scrape.core.progress_bars import ProgressBars
 
 
 URLS = [
-    "https://www.radionatturner.com/brazil/",
-    "https://www.radionatturner.com/dance-music/",
+    # "https://www.radionatturner.com/brazil/",
+    # "https://www.radionatturner.com/dance-music/",
     "https://www.radionatturner.com/disco/",
     "https://www.radionatturner.com/funksoulrb/",
     "https://www.radionatturner.com/hip-hop/",
@@ -37,6 +38,8 @@ PASSWORD = os.environ.get("RADIO_NAT_TURNER_PASSWORD")
 
 PROGRESS_BARS = ProgressBars()
 
+FAILURES = []
+
 
 class Writer:
     """
@@ -46,7 +49,7 @@ class Writer:
     def __init__(self, filename, response, directory=None):
         self.filename = filename
         self.response = response
-        self.size = int(response.headers.get("content-length").strip())
+        self.size = int(response.headers.get("content-length", "0").strip())
         self.dest = os.path.join(directory, filename) if directory else filename
         self.status = self.fileobj = None
         print(f"{Fore.CYAN}Downlading {self.filename} size={self.size}")
@@ -134,6 +137,20 @@ class RadioNatTurner:
                 continue
             response = requests.get(track_url, stream=True)
 
+            if not response.ok:
+                failure = {
+                    "response": response,
+                    "title": title,
+                    "artist": artist,
+                    "track_url": track_url,
+                    "track_filename": track_filename,
+                }
+                print(
+                    f"{Fore.RED}{artist} - {title} failed: {response.status_code} {response.reason}{Style.RESET_ALL}"
+                )
+                FAILURES.append(failure)
+                continue
+
             with Writer(
                 track_filename,
                 response,
@@ -152,3 +169,6 @@ def main():
 
     for url in URLS:
         RadioNatTurner(url).scrape()
+
+    for failure in FAILURES:
+        print(f"{Fore.RED}{json.dumps(failure)}")
