@@ -22,8 +22,8 @@ from scrape.core.progress_bars import ProgressBars
 
 
 URLS = [
-    # "https://www.radionatturner.com/brazil/",
-    # "https://www.radionatturner.com/dance-music/",
+    "https://www.radionatturner.com/brazil/",
+    "https://www.radionatturner.com/dance-music/",
     "https://www.radionatturner.com/disco/",
     "https://www.radionatturner.com/funksoulrb/",
     "https://www.radionatturner.com/hip-hop/",
