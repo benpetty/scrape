@@ -19,6 +19,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from colorama import Fore, Back, Style
 
 from scrape.core.progress_bars import ProgressBars
+from scrape.core.normalize_filename import strip_accents
 
 
 URLS = [
@@ -80,6 +81,11 @@ class Writer:
             self.status.update(CHUNK_SIZE)
 
 
+def get_track_filename(track_url: str):
+    _ = os.path.basename(urlparse(track_url).path)
+    return url2pathname(_).replace("+", " ")
+
+
 class RadioNatTurner:
     def __init__(self, url: str):
         self.browser = webdriver.Firefox()
@@ -97,6 +103,9 @@ class RadioNatTurner:
         password_input.send_keys(Keys.RETURN)
 
     def scrape(self):
+        """
+        Make it do what it do baby
+        """
         self.login()
 
         WebDriverWait(self.browser, 10).until(
@@ -131,8 +140,7 @@ class RadioNatTurner:
             )
 
             # Already exists?
-            _ = os.path.basename(urlparse(track_url).path)
-            track_filename = url2pathname(_).replace("+", " ")
+            track_filename = get_track_filename(track_url)
             if os.path.isfile(f"{self.folder_name}/{track_filename}"):
                 _ = f"{Fore.LIGHTBLUE_EX}{track_filename}"
                 print(f"{Fore.BLUE}...skipping {_}{Fore.BLUE} [already saved]")
