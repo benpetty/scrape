@@ -91,7 +91,7 @@ class RadioNatTurner:
     def login(self):
         self.browser.get(self.url)
         self.browser.set_window_size(200, 200)
-        print(f"signing in to {self.url}")
+        print(f"{Style.RESET_ALL}signing in @ {Fore.YELLOW}{self.url}")
         password_input = self.browser.find_element_by_class_name("password-input")
         password_input.send_keys(PASSWORD)
         password_input.send_keys(Keys.RETURN)
@@ -104,8 +104,9 @@ class RadioNatTurner:
         )
 
         tracks = self.browser.find_elements_by_class_name("audio-block")
-        print(f"found {len(tracks)} tracks")
-        print(f"saving to {self.folder_name}")
+        _ = f"{Fore.YELLOW}{len(tracks)}{Style.RESET_ALL}"
+        print(f"found {_} tracks")
+        print(f"saving to {Fore.YELLOW}{self.folder_name}")
 
         filecounter = PROGRESS_BARS.manager.counter(
             total=len(tracks),
@@ -129,6 +130,7 @@ class RadioNatTurner:
                 .split("?")[0]
             )
 
+            # Already exists?
             _ = os.path.basename(urlparse(track_url).path)
             track_filename = url2pathname(_).replace("+", " ")
             if os.path.isfile(f"{self.folder_name}/{track_filename}"):
@@ -136,22 +138,36 @@ class RadioNatTurner:
                 print(f"{Fore.BLUE}...skipping {_}{Fore.BLUE} [already saved]")
                 filecounter.update(1)
                 continue
+
+            # Get file as stream
             response = requests.get(track_url, stream=True)
 
             if not response.ok:
+
+                # 429 Too Many Requests
+                if response.status_code == 429:
+                    print(
+                        f"{Fore.WHITE}{Back.RED} 😈 429 - Too Many Requests. Restarting {self.folder_name} {Style.RESET_ALL}"
+                    )
+                    self.browser.close()
+                    self.browser = webdriver.Firefox()
+                    return self.scrape()
+
+                # Push any other failure data to FAILURES array and continue
                 failure = {
-                    "response": response,
+                    "response": f"{response.status_code} {response.reason}",
                     "title": title,
                     "artist": artist,
                     "track_url": track_url,
                     "track_filename": track_filename,
                 }
                 print(
-                    f"{Fore.RED}{artist} - {title} failed: {response.status_code} {response.reason}{Style.RESET_ALL}"
+                    f"{Fore.RED}{artist} - {title} failed: {response.status_code} {response.reason}{Style.RESET_ALL} 😢"
                 )
                 FAILURES.append(failure)
                 continue
 
+            # Save file to disk
             with Writer(
                 track_filename,
                 response,
@@ -172,4 +188,6 @@ def main():
         RadioNatTurner(url).scrape()
 
     for failure in FAILURES:
+        msg = f"💀 {failure.get('artist')} - {failure.get('title')} failed! 💀"
+        print(f"{Back.RED}{Fore.WHITE} {msg} {Style.RESET_ALL}")
         print(f"{Fore.RED}{json.dumps(failure)}")

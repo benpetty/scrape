@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
-ipython = "*"
-selenium = "*"
-enlighten = "*"
-colorama = "*"
+colorama = "~=0.4.4"
+enlighten = "~=1.8.0"
+requests = "~=2.25.1"
+selenium = "~=3.141.0"
 
 [dev-packages]
+ipython = "~=7.21.0"
 
 [requires]
 python_version = "3.9"
