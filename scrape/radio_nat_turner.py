@@ -33,6 +33,7 @@ URLS = [
     "https://www.radionatturner.com/new-school-funksoulrb/",
     "https://www.radionatturner.com/reggae/",
     "https://www.radionatturner.com/rock/",
+    "https://www.radionatturner.com/rev-pressure-edits",
 ]
 
 PASSWORD = os.environ.get("RADIO_NAT_TURNER_PASSWORD")
