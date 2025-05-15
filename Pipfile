@@ -10,7 +10,7 @@ requests = "~=2.32.2"
 selenium = "~=3.141.0"
 
 [dev-packages]
-ipython = "~=7.21.0"
+ipython = "~=8.10.0"
 
 [requires]
 python_version = "3.9"
