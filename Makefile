@@ -1,14 +1,14 @@
-REQUIRED_BINS := geckodriver
+REQUIRED_BINS := geckodriver uv
 $(foreach bin,$(REQUIRED_BINS),\
     $(if $(shell command -v $(bin) 2> /dev/null),$(info Found required `$(bin)`),$(error Please install `$(bin)`)))
 
 -include .env
+export
 
+.PHONY: install scrape
 
 install:
-	@pipenv install
+	@uv sync --extra dev
 
-
-.PHONY: scrape
 scrape:
-	@pipenv run scrape
+	@uv run scrape

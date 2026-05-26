@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import os
-import random
 import json
 
 from urllib.parse import urlparse
@@ -11,7 +10,6 @@ import requests
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,7 +17,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from colorama import Fore, Back, Style
 
 from scrape.core.progress_bars import ProgressBars
-from scrape.core.normalize_filename import strip_accents
 
 
 URLS = [
@@ -92,14 +89,13 @@ class RadioNatTurner:
         self.browser = webdriver.Firefox()
         self.url = url
         self.folder_name = f"data{urlparse(self.url).path}"
-        if not os.path.isdir(self.folder_name):
-            os.mkdir(self.folder_name)
+        os.makedirs(self.folder_name, exist_ok=True)
 
     def login(self):
         self.browser.get(self.url)
         self.browser.set_window_size(200, 200)
         print(f"{Style.RESET_ALL}signing in @ {Fore.YELLOW}{self.url}")
-        password_input = self.browser.find_element_by_class_name("password-input")
+        password_input = self.browser.find_element(By.CLASS_NAME, "password-input")
         password_input.send_keys(PASSWORD)
         password_input.send_keys(Keys.RETURN)
 
@@ -113,7 +109,7 @@ class RadioNatTurner:
             EC.presence_of_element_located((By.CLASS_NAME, "audio-block"))
         )
 
-        tracks = self.browser.find_elements_by_class_name("audio-block")
+        tracks = self.browser.find_elements(By.CLASS_NAME, "audio-block")
         _ = f"{Fore.YELLOW}{len(tracks)}{Style.RESET_ALL}"
         print(f"found {_} tracks")
         print(f"saving to {Fore.YELLOW}{self.folder_name}")
@@ -130,12 +126,12 @@ class RadioNatTurner:
                 EC.presence_of_element_located((By.CLASS_NAME, "title"))
             )
 
-            title = track.find_element_by_class_name("title").text
-            artist = track.find_element_by_class_name("artistName").text
+            title = track.find_element(By.CLASS_NAME, "title").text
+            artist = track.find_element(By.CLASS_NAME, "artistName").text
             track_url = (
-                track.find_element_by_class_name("secondary-controls")
-                .find_element_by_class_name("download")
-                .find_element_by_tag_name("a")
+                track.find_element(By.CLASS_NAME, "secondary-controls")
+                .find_element(By.CLASS_NAME, "download")
+                .find_element(By.TAG_NAME, "a")
                 .get_property("href")
                 .split("?")[0]
             )
