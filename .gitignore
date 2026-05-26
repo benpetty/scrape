@@ -3,3 +3,16 @@ geckodriver.log
 data
 
 .venv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# Build artifacts
+dist/
+build/
+
+# Worktrees (per superpowers using-git-worktrees)
+.worktrees/
